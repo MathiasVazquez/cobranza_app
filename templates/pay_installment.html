@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+{% block title %}Pagar cuota{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h2>Pagar cuota {{ installment.number }}</h2>
+    <p class="muted">Cliente: {{ installment.loan.client.name }}</p>
+
+    <p>
+        <strong>Monto:</strong> {{ installment.amount }}<br>
+        <strong>Estado:</strong> {{ installment.status }}
+    </p>
+
+    <form method="post">
+        <label>Fecha de pago</label>
+        <input type="date" name="payment_date" required>
+
+        <label>Nota opcional</label>
+        <textarea name="note" rows="4" placeholder="Ej: pagó en efectivo, pagó atrasado, abonó en casa"></textarea>
+
+        <button type="submit">Confirmar pago</button>
+    </form>
+</div>
+{% endblock %}

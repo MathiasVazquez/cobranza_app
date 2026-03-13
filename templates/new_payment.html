@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+
+{% block title %}Registrar pago{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h2>Registrar pago</h2>
+    <p class="muted">Cliente: {{ loan.client.name }} · Préstamo #{{ loan.id }}</p>
+
+    <form method="post">
+        <label>Monto pagado</label>
+        <input type="number" step="0.01" name="amount_paid" required>
+
+        <label>Fecha de pago</label>
+        <input type="date" name="payment_date" required>
+
+        <label>Nota opcional</label>
+        <textarea name="note" rows="4" placeholder="Ej: pagó parcial, prometió completar mañana"></textarea>
+
+        <button type="submit">Guardar pago</button>
+    </form>
+</div>
+{% endblock %}

@@ -1,0 +1,122 @@
+{% extends "base.html" %}
+
+{% block title %}{{ client.name }}{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h2>{{ client.name }}</h2>
+
+    <p class="muted">
+        {{ client.phone or 'Sin teléfono' }}
+        {% if client.address %}
+            · {{ client.address }}
+        {% endif %}
+    </p>
+
+    {% if client.notes %}
+        <p><strong>Observaciones:</strong> {{ client.notes }}</p>
+    {% endif %}
+
+    <div class="grid-3">
+        <div class="mini-card">
+            <span class="muted">Total</span><br>
+            <strong>{{ total_amount | gs }}</strong>
+        </div>
+
+        <div class="mini-card">
+            <span class="muted">Pagado</span><br>
+            <strong>{{ total_paid | gs }}</strong>
+        </div>
+
+        <div class="mini-card">
+            <span class="muted">Saldo</span><br>
+            <strong>{{ total_balance | gs }}</strong>
+        </div>
+    </div>
+
+    <div class="actions">
+        <a class="btn" href="{{ url_for('new_loan', client_id=client.id) }}">Nuevo préstamo</a>
+        <a class="btn secondary" href="{{ url_for('export_client_pdf', client_id=client.id) }}">Exportar PDF</a>
+    </div>
+</div>
+
+{% if client.loans %}
+    {% for loan in client.loans %}
+    <div class="card">
+        <h3>Préstamo #{{ loan.id }}</h3>
+
+        <p class="muted">
+            Inicio: {{ loan.start_date.strftime('%d/%m/%Y') }} · Estado: {{ loan.status }}
+        </p>
+
+        <p>
+            <strong>Total:</strong> {{ loan.amount_total | gs }}<br>
+            <strong>Cantidad de cuotas:</strong> {{ loan.installment_count }}<br>
+            <strong>Valor de cuota:</strong> {{ loan.installment_value | gs }}<br>
+            <strong>Pagado:</strong> {{ loan.total_paid | gs }}<br>
+            <strong>Saldo:</strong> {{ loan.balance | gs }}
+        </p>
+
+        {% if loan.initial_note %}
+            <p><strong>Nota inicial:</strong> {{ loan.initial_note }}</p>
+        {% endif %}
+
+        <h4>Cuotas</h4>
+
+        <div class="installments-bar">
+            {% for installment in loan.installments|sort(attribute='number') %}
+                {% if installment.status == "pagada" %}
+                    <div class="installment paid">{{ installment.number }}</div>
+                {% else %}
+                    <div class="installment pending">{{ installment.number }}</div>
+                {% endif %}
+            {% endfor %}
+        </div>
+
+        <div style="margin-top: 14px;">
+            {% for installment in loan.installments|sort(attribute='number') %}
+                <div class="mini-card quota-card">
+                    <form method="post" action="{{ url_for('update_installment', installment_id=installment.id) }}">
+                        <strong>Cuota {{ installment.number }}</strong><br>
+                        Monto: {{ installment.amount | gs }}<br>
+
+                        Estado:
+                        {% if installment.status == "pagada" %}
+                            <span class="status-paid"><strong>Pagado</strong></span>
+                        {% else %}
+                            <span class="status-pending"><strong>Pendiente</strong></span>
+                        {% endif %}
+
+                        {% if installment.payment_date %}
+                            <br>Fecha: {{ installment.payment_date.strftime('%d/%m/%Y') }}
+                        {% endif %}
+
+                        <div class="note-box">
+                            <label>Nota</label>
+                            <textarea name="note" rows="2" placeholder="Ej: no pagó todo, se atrasará, prometió pagar luego">{{ installment.note or '' }}</textarea>
+                        </div>
+
+                        <div class="actions">
+                            {% if installment.status == "pendiente" %}
+                                <button type="submit" name="action" value="mark_paid" class="btn">
+                                    Pagado
+                                </button>
+                            {% else %}
+                                <button type="submit" name="action" value="mark_pending" class="btn secondary">
+                                    Pendiente
+                                </button>
+                            {% endif %}
+                        </div>
+                    </form>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endfor %}
+{% else %}
+    <div class="card">
+        <p>Este cliente todavía no tiene préstamos cargados.</p>
+    </div>
+{% endif %}
+
+{% endblock %}

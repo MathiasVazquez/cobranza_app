@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+
+{% block title %}Clientes{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h2>Clientes</h2>
+    <p class="muted">Todos los clientes aparecen en esta pantalla.</p>
+    <a class="btn" href="{{ url_for('new_client') }}">Nuevo cliente</a>
+</div>
+
+{% for client in clients %}
+<div class="card">
+    <h3>{{ client.name }}</h3>
+    <p class="muted">{{ client.phone or 'Sin teléfono' }}</p>
+    <a class="btn" href="{{ url_for('client_detail', client_id=client.id) }}">Ver ficha</a>
+</div>
+{% else %}
+<div class="card">
+    <p>No hay clientes cargados todavía.</p>
+</div>
+{% endfor %}
+{% endblock %}

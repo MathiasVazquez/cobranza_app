@@ -25,6 +25,9 @@ def format_guaranies(value):
 app.config.from_object(Config)
 db.init_app(app)
 
+with app.app_context():
+    db.create_all()
+
 
 def login_required(view_func):
     @wraps(view_func)
